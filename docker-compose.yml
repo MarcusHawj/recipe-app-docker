@@ -1,0 +1,31 @@
+version: '3.8'
+
+services:
+  # Backend API service
+  backend:
+    # Build the image from the Dockerfile in ./backend
+    build: ./backend
+    # Map port 5000 on my computer to port 5000 in the container
+    ports:
+      - "5000:5000"
+    # Store the SQLite database in a named volume so data persists
+    volumes:
+      - recipe-data:/app/data
+
+  # Frontend web service
+  frontend:
+    # Build the image from the Dockerfile in ./frontend
+    build: ./frontend
+    # Map port 3000 on my computer to port 80 (nginx) in the container
+    ports:
+      - "3000:80"
+    # Make sure the backend starts before the frontend
+    depends_on:
+      - backend
+    # Tell the frontend where to find the backend API
+    environment:
+      - VITE_API_URL=http://localhost:5000
+
+# Named volume to persist the database between container restarts
+volumes:
+  recipe-data:
